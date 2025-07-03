@@ -1,1 +1,11 @@
-<h1>Main</h1>
+<%= form_with method: :get, class: "justify-center" do |form| %>
+    <div class="mb-2">
+        <%= form.label "Move Ins" %>
+    </div>
+    <div class="mb-2">
+        <%= form.label @move_ins %>
+    </div>
+    <div class="mb-6">
+        <%= form.label @move_ins_percent %>
+    </div>
+<% end %>
