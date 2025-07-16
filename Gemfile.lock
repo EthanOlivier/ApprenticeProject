@@ -115,10 +115,6 @@ GEM
       activesupport (>= 6.1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
-    importmap-rails (2.1.0)
-      actionpack (>= 6.0.0)
-      activesupport (>= 6.0.0)
-      railties (>= 6.0.0)
     io-console (0.8.0)
     irb (1.15.2)
       pp (>= 0.6.0)
@@ -127,6 +123,8 @@ GEM
     jbuilder (2.13.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
+    jsbundling-rails (1.3.1)
+      railties (>= 6.0.0)
     json (2.12.2)
     kamal (2.7.0)
       activesupport (>= 7.0)
@@ -319,8 +317,6 @@ GEM
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
       ostruct
-    stimulus-rails (1.3.4)
-      railties (>= 6.0.0)
     stringio (3.1.7)
     tailwindcss-rails (4.2.3)
       railties (>= 7.0.0)
@@ -377,8 +373,8 @@ DEPENDENCIES
   brakeman
   capybara
   debug
-  importmap-rails
   jbuilder
+  jsbundling-rails
   kamal
   propshaft
   puma (>= 5.0)
@@ -389,7 +385,6 @@ DEPENDENCIES
   solid_cache
   solid_queue
   sqlite3 (>= 2.1)
-  stimulus-rails
   tailwindcss-rails
   thruster
   turbo-rails

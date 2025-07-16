@@ -1,11 +1,15 @@
-<%= form_with method: :get, class: "justify-center" do |form| %>
-    <div class="mb-2">
-        <%= form.label "Move Ins" %>
-    </div>
-    <div class="mb-2">
-        <%= form.label @move_ins %>
-    </div>
-    <div class="mb-6">
-        <%= form.label @move_ins_percent %>
-    </div>
-<% end %>
+<div class="flex flex-col px-4 items-center">
+    <p class="text-2xl">Move Ins</p>
+    <p class="mb-2 text-4xl"><%= @move_ins %></p>
+    <p class="flex mb-6 <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
+        <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2") %>
+        <%= @move_ins_percent %>
+    </p>
+    <canvas
+        id="move-ins-chart"
+        data-labels='<%= @labels.to_json.html_safe %>'
+        data-values='<%= @values.to_json.html_safe %>'
+        width="600"
+        height="300"
+    ></canvas>
+</div>
