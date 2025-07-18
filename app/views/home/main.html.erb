@@ -8,8 +8,9 @@
     <canvas
         id="move-ins-chart"
         data-labels='<%= @labels.to_json.html_safe %>'
-        data-values='<%= @values.to_json.html_safe %>'
-        width="600"
-        height="300"
+        data-current-values='<%= @current_values.to_json.html_safe %>'
+        data-last-values='<%= @last_values.to_json.html_safe %>'
+        width="500"
+        height="250"
     ></canvas>
 </div>
