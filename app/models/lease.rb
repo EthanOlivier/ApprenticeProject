@@ -1,32 +1,8 @@
 class Lease < ApplicationRecord
-  after_update :audit_log_updated
-
-  belongs_to :storage_unit, optional: true
-  belongs_to :bulk_storage_unit, optional: true
-
-  belongs_to :company, inverse_of: :leases
-  belongs_to :customer, inverse_of: :leases
-  belongs_to :billing_interval, inverse_of: :leases
-  has_many :invoice_items, inverse_of: :lease
-  has_many :security_deposits, inverse_of: :lease, dependent: :destroy
-  has_many :lease_agreements, inverse_of: :lease, dependent: :destroy
-  has_many :lease_agreement_requests, inverse_of: :lease, dependent: :destroy
-  has_many :recurring_invoice_items, class_name: "LeasesRecurringInvoiceItem", dependent: :destroy
-  has_many :protection_plan_options, class_name: "LeasesProtectionPlanOption", dependent: :destroy
-  has_many :notifications, inverse_of: :lease, dependent: :destroy
-  has_many :discounts, class_name: "LeasesDiscount", dependent: :destroy
-  has_one :bulk_storage_unit_site_map_lease_position, dependent: :destroy
-  has_one :pac_code, -> { where(deleted_at: nil) }
-  has_many :rate_changes, inverse_of: :lease, dependent: :destroy
-
-  accepts_nested_attributes_for :protection_plan_options
-
   validate :reject_next_bill_date_update_backwards_into_past
   validate :reject_occupancy_end_date_in_the_future
   validate :reject_next_bill_date_before_occupancy_starts
   validate :reject_overlapping_occupancy_on_storage_unit
-
-  before_validation :set_company_id
 
   has_many :unsigned_agreements, -> { where(accepted_at: nil) }, class_name: "LeaseAgreementRequest"
 
@@ -178,17 +154,6 @@ class Lease < ApplicationRecord
     if next_bill_date && next_bill_date_was && next_bill_date < next_bill_date_was && next_bill_date < Time.zone.today
       errors.add :next_bill_date, "cannot update backwards into past"
     end
-  end
-
-  def set_company_id
-    self.company_id = Current.company&.id || customer&.company_id
-  end
-
-  def unpaid_invoices(date = Date.current)
-    InvoiceItem.joins(:invoice)
-      .where(lease_id: id)
-      .where(Invoice.arel_table[:void].eq(false))
-      .where(Invoice.arel_table[:due_date].gteq(date))
   end
 
   # creates a CTE and joins to make the last paid invoice's due date available
