@@ -1,0 +1,39 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  id: 
+  storage_unit_id: 1
+  cash_price: 9.99
+  occupancy_dates: 
+  next_bill_date: 2025-07-18
+  customer_id: 
+  company_id: 1
+  billing_interval_id: 1
+  notes: MyText
+  serial_num: 1
+  void: false
+  z_gate_access_code: MyText
+  bulk_storage_unit_id: 1
+  feet_leased: 1
+  scheduled_move_out: 2025-07-18
+  tax_exempt: false
+  auction_date: 2025-07-18
+
+two:
+  id: 
+  storage_unit_id: 1
+  cash_price: 9.99
+  occupancy_dates: 
+  next_bill_date: 2025-07-18
+  customer_id: 
+  company_id: 1
+  billing_interval_id: 1
+  notes: MyText
+  serial_num: 1
+  void: false
+  z_gate_access_code: MyText
+  bulk_storage_unit_id: 1
+  feet_leased: 1
+  scheduled_move_out: 2025-07-18
+  tax_exempt: false
+  auction_date: 2025-07-18

@@ -10,8 +10,27 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_184509) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_18_195419) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "uuid-ossp"
 
+  create_table "leases", id: :uuid, default: nil, force: :cascade do |t|
+    t.integer "storage_unit_id"
+    t.decimal "cash_price", null: false
+    t.daterange "occupancy_dates", null: false
+    t.date "next_bill_date", null: false
+    t.uuid "customer_id", null: false
+    t.integer "company_id", null: false
+    t.integer "billing_interval_id", null: false
+    t.text "notes"
+    t.integer "serial_num", null: false
+    t.boolean "void", default: false, null: false
+    t.text "z_gate_access_code"
+    t.integer "bulk_storage_unit_id"
+    t.integer "feet_leased"
+    t.date "scheduled_move_out"
+    t.boolean "tax_exempt", default: false, null: false
+    t.date "auction_date"
+  end
 end
