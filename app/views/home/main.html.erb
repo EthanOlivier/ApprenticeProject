@@ -1,15 +1,15 @@
 <div class="flex flex-col px-4 items-center">
     <p class="text-2xl">Move Ins</p>
-    <p class="mb-2 text-4xl"><%= @move_ins %></p>
-    <p class="flex mb-6 <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
-        <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2") %>
-        <%= @move_ins_percent %>
+    <p class="mb-2 text-4xl"><%= @report_month_move_ins %></p>
+    <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
+        <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
+        <%= @move_ins_percent %>%
     </p>
     <canvas
         id="move-ins-chart"
         data-labels='<%= @labels.to_json.html_safe %>'
-        data-current-values='<%= @current_values.to_json.html_safe %>'
-        data-last-values='<%= @last_values.to_json.html_safe %>'
+        data-current-values='<%= @report_month_values.to_json.html_safe %>'
+        data-last-values='<%= @prior_month_values.to_json.html_safe %>'
         width="500"
         height="250"
     ></canvas>

@@ -59,7 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
           },
         },
         y: {
-          beginAtZero: true
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1,
+            callback: function(value) {
+              if (Number.isInteger(value)) {
+                return value;
+              }
+              return '';
+            }
+          }
         }
       }
     }
