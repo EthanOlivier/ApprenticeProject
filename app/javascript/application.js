@@ -2,3 +2,4 @@
 import "@hotwired/turbo-rails"
 import "chart.js/auto"
 import "./line_chart"
+import "./fade_in"

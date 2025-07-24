@@ -22,14 +22,14 @@ document.addEventListener('DOMContentLoaded', () => {
           label: `${monthName}'s Move Ins`,
           data: currentValues,
           pointBackgroundColor: 'white',
-          borderColor: 'rgb(75, 192, 192)',
+          borderColor: 'rgb(75, 192, 255)',
           tension: 0.1
         },
         {
           label: `${lastMonthName}'s Move Ins`,
           data: lastValues,
           pointBackgroundColor: 'white',
-          borderColor: 'rgba(180, 63, 63, 0.8)',
+          borderColor: 'rgba(180, 63, 63, 0.35)',
           tension: 0.1
         }
       ]
@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
           beginAtZero: true,
           ticks: {
             stepSize: 1,
+            maxTicksLimit: 5,
             callback: function(value) {
               if (Number.isInteger(value)) {
                 return value;
