@@ -1,16 +1,34 @@
-<div class="fade-in flex flex-col px-4 items-center">
-    <p class="text-2xl">Move Ins</p>
-    <p class="mb-2 text-4xl"><%= @report_month_move_ins %></p>
-    <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
-        <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
-        <%= @move_ins_percent %>%
-    </p>
-    <canvas
-        id="move-ins-chart"
-        data-labels='<%= @labels.to_json.html_safe %>'
-        data-current-values='<%= @report_month_values.to_json.html_safe %>'
-        data-last-values='<%= @prior_month_values.to_json.html_safe %>'
-        width="500"
-        height="250"
-    ></canvas>
+<div class="columns-2">
+    <div class="fade-in flex flex-col px-4 items-center">
+        <p class="text-2xl">Move Ins</p>
+        <p class="mb-2 text-4xl"><%= @report_month_move_ins %></p>
+        <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
+            <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
+            <%= @move_ins_percent %>%
+        </p>
+        <canvas
+            class="chart"
+            data-labels='<%= @labels.to_json.html_safe %>'
+            data-report-month-values='<%= @report_month_move_in_values.to_json.html_safe %>'
+            data-prior-month-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
+            width="500"
+            height="250"
+        ></canvas>
+    </div>
+    <div class="fade-in flex flex-col px-4 items-center">
+        <p class="text-2xl">Move Outs</p>
+        <p class="mb-2 text-4xl"><%= @report_month_move_outs %></p>
+        <p class="flex mb-6 items-center <%= @move_outs_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
+            <%= icon(@move_outs_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
+            <%= @move_outs_percent %>%
+        </p>
+        <canvas
+            class="chart"
+            data-labels='<%= @labels.to_json.html_safe %>'
+            data-report-month-values='<%= @report_month_move_out_values.to_json.html_safe %>'
+            data-prior-month-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
+            width="500"
+            height="250"
+        ></canvas>
+    </div>
 </div>

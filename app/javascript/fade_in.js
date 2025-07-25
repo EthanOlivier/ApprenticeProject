@@ -1,11 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.fade-in').forEach(element => {
-        element.style.opacity = 0;
-        observer.observe(element);
-    });
-    
     const observer = new window.IntersectionObserver(
         (entries, observer) => {
+            console.log(entries)
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     fadeIn(entry.target);
@@ -14,6 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }, {
         threshold: 0.1
+    });
+    
+    document.querySelectorAll('.fade-in').forEach(element => {
+        element.style.opacity = 0;
+        observer.observe(element);
     });
 
     function fadeIn(element, duration = 1500) {
