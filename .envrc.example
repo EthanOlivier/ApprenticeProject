@@ -1,0 +1,4 @@
+export PGDATABASE=apprenticeproject_development
+export PGPORT=5002
+export PGUSER=postgres
+export POSTGRESQL_DATA_DIR=.db/postgresql
