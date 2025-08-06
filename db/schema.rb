@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_195419) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_06_162257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pgcrypto"
   enable_extension "uuid-ossp"
 
-  create_table "leases", id: :uuid, default: nil, force: :cascade do |t|
+  create_table "leases", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "storage_unit_id"
     t.decimal "cash_price", null: false
     t.daterange "occupancy_dates", null: false

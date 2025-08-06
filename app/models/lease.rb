@@ -2,7 +2,6 @@ class Lease < ApplicationRecord
   validate :reject_next_bill_date_update_backwards_into_past
   validate :reject_occupancy_end_date_in_the_future
   validate :reject_next_bill_date_before_occupancy_starts
-  validate :reject_overlapping_occupancy_on_storage_unit
 
   has_many :unsigned_agreements, -> { where(accepted_at: nil) }, class_name: "LeaseAgreementRequest"
 
@@ -116,32 +115,6 @@ class Lease < ApplicationRecord
     if occupancy_dates.end.present? && occupancy_dates.end != Float::INFINITY && occupancy_dates.end > Time.current.to_date
       errors.add :occupancy_ends, "cannot be in the future"
     end
-  end
-
-  def reject_overlapping_occupancy_on_storage_unit
-    return if storage_unit_id.blank?
-
-    conflicting_lease = self.class
-      .where.not(id:)
-      .where(storage_unit_id:, void: false)
-      .where("occupancy_dates @> ?::date", occupancy_dates.begin)
-      .first
-
-    return if conflicting_lease.blank?
-
-    range_to_text = ->(range) do
-      range.end.infinite? ?
-             "starting from #{range.begin}." :
-             "from #{range.begin} to #{range.end}."
-    end
-
-    message = <<~TXT.squish
-      "#{storage_unit.name}" already has a lease
-      #{range_to_text.call(conflicting_lease.occupancy_dates)}
-      You tried to save one #{range_to_text.call(occupancy_dates)}
-    TXT
-
-    errors.add(:storage_unit_id, message)
   end
 
   def reject_next_bill_date_before_occupancy_starts
