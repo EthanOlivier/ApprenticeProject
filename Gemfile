@@ -29,6 +29,8 @@ gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
 
+gem "csv"
+
 gem "tailwindcss-rails"
 
 gem "jsbundling-rails"
