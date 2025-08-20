@@ -1,6 +1,7 @@
 import Chart from 'chart.js/auto';
 
-document.querySelectorAll('.line-chart').forEach(chartElem => {
+function initializeLineCharts() {
+  document.querySelectorAll('.line-chart').forEach(chartElem => {
     const ctx = chartElem.getContext('2d');
     const labels = JSON.parse(chartElem.dataset.labels);
     const reportMonthValues = JSON.parse(chartElem.dataset.reportMonthValues);
@@ -73,4 +74,8 @@ document.querySelectorAll('.line-chart').forEach(chartElem => {
       }
     }
   });
-});
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initializeLineCharts);
+document.addEventListener('turbo:load', initializeLineCharts);

@@ -1,7 +1,8 @@
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-document.querySelectorAll('.doughnut-chart').forEach(chartElem => {
+function initializeDoughnutCharts() {
+  document.querySelectorAll('.doughnut-chart').forEach(chartElem => {
   const ctx = chartElem.getContext('2d');
   const labels = JSON.parse(chartElem.dataset.labels);
   const newCustomerValues = JSON.parse(chartElem.dataset.newCustomerValues);
@@ -52,4 +53,8 @@ document.querySelectorAll('.doughnut-chart').forEach(chartElem => {
         }
       }
   });
-});
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initializeDoughnutCharts);
+document.addEventListener('turbo:load', initializeDoughnutCharts);
