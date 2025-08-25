@@ -1,5 +1,6 @@
-<div class="columns-2 mt-4">
-    <div class="fade-in flex flex-col px-4 items-center">
+<%= h1("Monthly Report") %>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-12">
+    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
         <p class="text-3xl">Move Ins</p>
         <p class="mb-2 text-5xl"><%= @report_month_move_ins %></p>
         <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
@@ -9,13 +10,15 @@
         <canvas
             class="line-chart"
             data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
-            data-report-month-values='<%= @report_month_move_in_values.to_json.html_safe %>'
-            data-prior-month-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
-            width="600"
-            height="300"
+            data-primary-legend-label='<%= @reportMonthName %>'
+            data-secondary-legend-label='<%= @priorMonthName %>'
+            data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
+            data-secondary-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
+            width="550"
+            height="275"
         ></canvas>
     </div>
-    <div class="fade-in flex flex-col px-4 items-center">
+    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
         <p class="text-3xl">Move Outs</p>
         <p class="mb-2 text-5xl"><%= @report_month_move_outs %></p>
         <p class="flex mb-6 items-center <%= @move_outs_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
@@ -25,21 +28,39 @@
         <canvas
             class="line-chart"
             data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
-            data-report-month-values='<%= @report_month_move_out_values.to_json.html_safe %>'
-            data-prior-month-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
-            width="600"
-            height="300"
+            data-primary-legend-label='<%= @reportMonthName %>'
+            data-secondary-legend-label='<%= @priorMonthName %>'
+            data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
+            data-secondary-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
+            width="550"
+            height="275"
         ></canvas>
     </div>
 </div>
-<div class="columns-2 mt-12">
-    <div class="fade-in flex flex-col px-4 items-center">
+<!--<div class="columns-2 mt-24 gap-8">
+    <div class="fade-in flex flex-col px-4 items-center">-->
+<div class="grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-12">
+    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
         <canvas 
             class="doughnut-chart w-full items-center"
             data-labels='["New Customers", "Existing Customers"]'
-            data-new-customer-values='<%= @report_month_new_customers.to_json.html_safe %>'
-            data-existing-customer-values='<%= @report_month_existing_customers.to_json.html_safe %>'
-            height="450"
+            data-new-customer-values='<%= @previous_months_new_customers.last.to_json.html_safe %>'
+            data-existing-customer-values='<%= @previous_months_existing_customers.last.to_json.html_safe %>'
+            data-enhanced-legend='<%= true %>'
+            height="300"
+        ></canvas>
+    </div>
+    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
+        <canvas
+            class="line-chart"
+            data-labels='<%= @month_labels.to_json.html_safe %>'
+            data-primary-legend-label='New Customers'
+            data-secondary-legend-label='Existing Customers'
+            data-primary-values='<%= @previous_months_new_customers.to_json.html_safe %>'
+            data-secondary-values='<%= @previous_months_existing_customers.to_json.html_safe %>'
+            data-enhanced-legend='<%= true %>'
+            width="600"
+            height="300"
         ></canvas>
     </div>
 </div>

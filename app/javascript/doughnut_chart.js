@@ -4,9 +4,16 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 function initializeDoughnutCharts() {
   document.querySelectorAll('.doughnut-chart').forEach(chartElem => {
   const ctx = chartElem.getContext('2d');
+  
+  // Destroy existing chart if it exists
+  if (Chart.getChart(ctx)) {
+    Chart.getChart(ctx).destroy();
+  }
+  
   const labels = JSON.parse(chartElem.dataset.labels);
   const newCustomerValues = JSON.parse(chartElem.dataset.newCustomerValues);
   const existingCustomerValues = JSON.parse(chartElem.dataset.existingCustomerValues);
+  const enhancedLegend = chartElem.dataset.enhancedLegend || "false";
 
   new Chart(ctx, {
       type: 'doughnut',
@@ -17,30 +24,32 @@ function initializeDoughnutCharts() {
           {
             data: [newCustomerValues, existingCustomerValues],
             backgroundColor: [
-              '#3B82F6',
-              '#EF4444'
+              'rgb(239, 108, 77)',
+              'rgb(152, 194, 218)'
             ]
           }
         ]
       },
       options: {
-        responsive: false,
+        responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'top',
             reverse: true,
-            font: {
-              size: 18,
-              weight: '400'
-            }
+            onClick: {},
+            labels: enhancedLegend === "true" ? {
+              font: {
+                size: 15,
+                weight: '700',
+              }
+            } : undefined
           },
           datalabels: {
             display: true,
             color: 'black',
             font: {
-              weight: 400,
-              size: 18
+              weight: 500,
+              size: 17
             },
             anchor: 'center',
             align: 'center',

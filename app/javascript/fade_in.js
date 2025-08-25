@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const observer = new window.IntersectionObserver(
         (entries, observer) => {
-            console.log(entries)
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     fadeIn(entry.target);
@@ -9,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }, {
-        threshold: 0.1
+        threshold: 0.10
     });
     
     document.querySelectorAll('.fade-in').forEach(element => {

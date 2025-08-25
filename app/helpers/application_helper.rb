@@ -20,4 +20,10 @@ module ApplicationHelper
     classes = classes.to_s + " animate-spin" if name == "loading-spinner"
     content_tag(:svg, svg_icon(name), class: classes)
   end
+
+  def h1(title, options = {})
+    o = options || {}
+    o[:class] = o.fetch(:class, "") + " text-4xl font-bold font-display"
+    content_tag(:h1, title, o)
+  end
 end
