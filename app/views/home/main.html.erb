@@ -1,6 +1,6 @@
 <%= h1("Monthly Report") %>
-<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-12">
-    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
+<div class="fade-in grid grid-cols-1 xl:grid-cols-2 gap-6 mt-12">
+    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
         <p class="text-3xl">Move Ins</p>
         <p class="mb-2 text-5xl"><%= @report_month_move_ins %></p>
         <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
@@ -18,7 +18,7 @@
             height="275"
         ></canvas>
     </div>
-    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
+    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
         <p class="text-3xl">Move Outs</p>
         <p class="mb-2 text-5xl"><%= @report_month_move_outs %></p>
         <p class="flex mb-6 items-center <%= @move_outs_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
@@ -37,20 +37,21 @@
         ></canvas>
     </div>
 </div>
-<!--<div class="columns-2 mt-24 gap-8">
-    <div class="fade-in flex flex-col px-4 items-center">-->
-<div class="grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-12">
-    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
+
+<div class="fade-in grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-12">
+    <% # h4("July", class: "mb-1") %>
+    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
         <canvas 
             class="doughnut-chart w-full items-center"
-            data-labels='["New Customers", "Existing Customers"]'
+            data-labels='["Existing Customers", "New Customers"]'
             data-new-customer-values='<%= @previous_months_new_customers.last.to_json.html_safe %>'
             data-existing-customer-values='<%= @previous_months_existing_customers.last.to_json.html_safe %>'
             data-enhanced-legend='<%= true %>'
             height="300"
         ></canvas>
     </div>
-    <div class="fade-in bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-6">
+    <% # h4("Past 12 Months", class: "mb-1") %>
+    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
         <canvas
             class="line-chart"
             data-labels='<%= @month_labels.to_json.html_safe %>'

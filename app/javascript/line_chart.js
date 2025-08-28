@@ -42,6 +42,7 @@ function initializeLineCharts() {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: true,
         elements: {
           point: {
             radius: 5,

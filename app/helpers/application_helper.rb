@@ -26,4 +26,22 @@ module ApplicationHelper
     o[:class] = o.fetch(:class, "") + " text-4xl font-bold font-display"
     content_tag(:h1, title, o)
   end
+
+  def h2(title, options = {})
+    o = options || {}
+    o[:class] = o.fetch(:class, "") + " text-3xl font-bold font-display"
+    content_tag(:h2, title, o)
+  end
+
+  def h3(title, options = {})
+    o = options || {}
+    o[:class] = o.fetch(:class, "") + " text-2xl font-bold font-display"
+    content_tag(:h3, title, o)
+  end
+
+  def h4(title, options = {})
+    o = options || {}
+    o[:class] = o.fetch(:class, "") + " text-lg font-bold font-display"
+    content_tag(:h4, title, o)
+  end
 end
