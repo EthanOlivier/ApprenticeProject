@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+function initializeFadeIn() {
     const observer = new window.IntersectionObserver(
         (entries, observer) => {
             entries.forEach(entry => {
@@ -31,4 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         requestAnimationFrame(step);
     }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initializeFadeIn);
+document.addEventListener('turbo:load', initializeFadeIn);

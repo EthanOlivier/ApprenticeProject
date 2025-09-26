@@ -1,4 +1,5 @@
 import Chart from 'chart.js/auto';
+// import ChartFillerPlugin from 'chartjs-plugin-filler';
 
 function initializeLineCharts() {
   document.querySelectorAll('.line-chart').forEach(chartElem => {
@@ -25,29 +26,38 @@ function initializeLineCharts() {
         labels: labels,
         datasets: [
           {
-            label: primaryLegendLabel,
             data: primaryValues,
-            pointBackgroundColor: 'white',
+            label: primaryLegendLabel,
             borderColor: primaryColor,
+            backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.35)'),
+            pointBackgroundColor: 'white',
+            fill: "origin",
+            order: 0,
             tension: 0.1
           },
           {
-            label: secondaryLegendLabel,
             data: secondaryValues,
-            pointBackgroundColor: 'white',
+            label: secondaryLegendLabel,
             borderColor: secondaryColor,
+            backgroundColor: secondaryColor.replace('rgb', 'rgba').replace(')', ', 0.35)'),
+            pointBackgroundColor: 'white',
+            fill: false,
+            order: 1,
             tension: 0.1
           }
         ]
       },
       options: {
-        responsive: true,
         maintainAspectRatio: true,
+        responsive: true,
         elements: {
           point: {
             radius: 5,
             borderWidth: 2
-          }
+          },
+          line: {
+            borderWidth: 4
+          },
         },
         scales: {
           x: {
@@ -64,12 +74,17 @@ function initializeLineCharts() {
         },
         plugins: {
           legend: {
+            position: enhancedLegend === "true" ? "bottom" : "top",
             labels: enhancedLegend === "true" ? {
+              color: 'black',
               font: {
-                size: 15,
-                weight: '700',
+                size: 16
               }
-            } : undefined
+            } : {
+              font: {
+                size: 15
+              }
+            }
           },
           tooltip: {
             callbacks: {
@@ -99,7 +114,10 @@ function initializeLineCharts() {
                 }
               }
             }
-          }
+          },
+          filler: {
+            drawTime: "beforeDatasetsDraw" // allows the secondary line to be drawn over the primary lines fill
+          },
         }
       }
     });

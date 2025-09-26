@@ -1,67 +1,73 @@
 <%= h1("Monthly Report") %>
-<div class="fade-in grid grid-cols-1 xl:grid-cols-2 gap-6 mt-12">
-    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
-        <p class="text-3xl">Move Ins</p>
-        <p class="mb-2 text-5xl"><%= @report_month_move_ins %></p>
-        <p class="flex mb-6 items-center <%= @move_ins_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
-            <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
-            <%= @move_ins_percent %>%
-        </p>
-        <canvas
-            class="line-chart"
-            data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
-            data-primary-legend-label='<%= @reportMonthName %>'
-            data-secondary-legend-label='<%= @priorMonthName %>'
-            data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
-            data-secondary-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
-            width="550"
-            height="275"
-        ></canvas>
-    </div>
-    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
-        <p class="text-3xl">Move Outs</p>
-        <p class="mb-2 text-5xl"><%= @report_month_move_outs %></p>
-        <p class="flex mb-6 items-center <%= @move_outs_percent >= 0 ? 'text-green-500' : 'text-red-500' %>">
-            <%= icon(@move_outs_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") %>
-            <%= @move_outs_percent %>%
-        </p>
-        <canvas
-            class="line-chart"
-            data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
-            data-primary-legend-label='<%= @reportMonthName %>'
-            data-secondary-legend-label='<%= @priorMonthName %>'
-            data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
-            data-secondary-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
-            width="550"
-            height="275"
-        ></canvas>
+
+<div class="fade-in mt-12">
+    <%= h2("Move Ins / Move Outs", class: "mb-5 flex justify-center") %>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg flex flex-col items-center shadow-sm border border-1 border-gray-300 p-4">
+            <p class="text-[26px] font-[400]">Move Ins</p>
+            <p class="mb-1 text-5xl"><%= @report_month_move_ins %></p>
+            <p class="flex mb-3 items-center <%= @move_ins_percent > 0 ? 'text-green-500' : @move_ins_percent < 0 ? 'text-red-500' : 'text-gray-500' %>">
+                <%= icon(@move_ins_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") if @move_ins_percent != 0 %>
+                <%= @move_ins_percent %>%
+            </p>
+            <canvas
+                class="line-chart"
+                data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
+                data-primary-legend-label='<%= @reportMonthName %>'
+                data-secondary-legend-label='<%= @priorMonthName %>'
+                data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
+                data-secondary-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
+                data-percent-difference='<%= @move_ins_percent %>'
+            ></canvas>
+        </div>
+        
+        <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
+            <p class="text-[26px] font-[400]">Move Outs</p>
+            <p class="mb-1 text-5xl"><%= @report_month_move_outs %></p>
+            <p class="flex mb-3 items-center <%= @move_outs_percent > 0 ? 'text-green-500' : @move_outs_percent < 0 ? 'text-red-500' : 'text-gray-500' %>">
+                <%= icon(@move_outs_percent >= 0 ? 'chevron-double-up' : 'chevron-down', "h-5 w-5 stroke-2 mr-1") if @move_outs_percent != 0 %>
+                <%= @move_outs_percent %>%
+            </p>
+            <canvas
+                class="line-chart"
+                data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
+                data-primary-legend-label='<%= @reportMonthName %>'
+                data-secondary-legend-label='<%= @priorMonthName %>'
+                data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
+                data-secondary-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
+                data-percent-difference='<%= @move_outs_percent %>'
+            ></canvas>
+        </div>
     </div>
 </div>
 
-<div class="fade-in grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-12">
-    <% # h4("July", class: "mb-1") %>
-    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
-        <canvas 
-            class="doughnut-chart w-full items-center"
-            data-labels='["Existing Customers", "New Customers"]'
-            data-new-customer-values='<%= @previous_months_new_customers.last.to_json.html_safe %>'
-            data-existing-customer-values='<%= @previous_months_existing_customers.last.to_json.html_safe %>'
-            data-enhanced-legend='<%= true %>'
-            height="300"
-        ></canvas>
-    </div>
-    <% # h4("Past 12 Months", class: "mb-1") %>
-    <div class="bg-white flex flex-col items-center rounded-lg shadow-sm border border-1 border-gray-300 p-4">
-        <canvas
-            class="line-chart"
-            data-labels='<%= @month_labels.to_json.html_safe %>'
-            data-primary-legend-label='New Customers'
-            data-secondary-legend-label='Existing Customers'
-            data-primary-values='<%= @previous_months_new_customers.to_json.html_safe %>'
-            data-secondary-values='<%= @previous_months_existing_customers.to_json.html_safe %>'
-            data-enhanced-legend='<%= true %>'
-            width="600"
-            height="300"
-        ></canvas>
+<div class="fade-in mt-18">
+    <%= h2("New / Returning Customers", class: "mb-5 flex justify-center relative") %>
+    
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[calc(34%-12px)_calc(66%-12px)]">
+        <div class="bg-white flex flex-col rounded-lg shadow-sm border border-1 border-gray-300 p-4 justify-between">
+            <%= h4(@reportMonthName, class: "mb-1 ml-1") %>
+            <canvas 
+                class="doughnut-chart max-h-[500px]"
+                data-labels='["Returning Customers", "New Customers"]'
+                data-new-customer-values='<%= @previous_months_new_customers.last %>'
+                data-returning-customer-values='<%= @previous_months_returning_customers.last %>'
+                data-enhanced-legend='<%= true %>'
+            ></canvas>
+        </div>
+        
+        <div class="bg-white flex flex-col rounded-lg shadow-sm border border-1 border-gray-300 p-4">
+            <%= h4("Past 12 Months", class: "mb-1 ml-1 relative") %>
+            <canvas
+                class="line-chart max-h-[500px]"
+                data-labels='<%= @month_labels.to_json.html_safe %>'
+                data-primary-legend-label='New Customers'
+                data-secondary-legend-label='Returning Customers'
+                data-primary-values='<%= @previous_months_new_customers.to_json.html_safe %>'
+                data-secondary-values='<%= @previous_months_returning_customers.to_json.html_safe %>'
+                data-enhanced-legend='<%= true %>'
+            ></canvas>
+        </div>
     </div>
 </div>
