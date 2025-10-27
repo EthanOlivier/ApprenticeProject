@@ -1,5 +1,4 @@
 import Chart from 'chart.js/auto';
-// import ChartFillerPlugin from 'chartjs-plugin-filler';
 
 function initializeLineCharts() {
   document.querySelectorAll('.line-chart').forEach(chartElem => {
@@ -18,6 +17,7 @@ function initializeLineCharts() {
     const primaryValues = JSON.parse(chartElem.dataset.primaryValues);
     const secondaryValues = JSON.parse(chartElem.dataset.secondaryValues);
     const enhancedLegend = chartElem.dataset.enhancedLegend || "false";
+    const onlyFillMain = chartElem.dataset.onlyFillMain || "false";
 
 
     new Chart(ctx, {
@@ -32,7 +32,7 @@ function initializeLineCharts() {
             backgroundColor: primaryColor.replace('rgb', 'rgba').replace(')', ', 0.35)'),
             pointBackgroundColor: 'white',
             fill: "origin",
-            order: 0,
+            order: 1,
             tension: 0.1
           },
           {
@@ -41,8 +41,8 @@ function initializeLineCharts() {
             borderColor: secondaryColor,
             backgroundColor: secondaryColor.replace('rgb', 'rgba').replace(')', ', 0.35)'),
             pointBackgroundColor: 'white',
-            fill: false,
-            order: 1,
+            fill: onlyFillMain === "true" ? false : "origin",
+            order: 0,
             tension: 0.1
           }
         ]
@@ -75,6 +75,7 @@ function initializeLineCharts() {
         plugins: {
           legend: {
             position: enhancedLegend === "true" ? "bottom" : "top",
+            reverse: true,
             labels: enhancedLegend === "true" ? {
               color: 'black',
               font: {

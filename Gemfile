@@ -33,6 +33,8 @@ gem "csv"
 
 gem "tailwindcss-rails"
 
+gem "pry-rails"
+
 gem "jsbundling-rails"
 
 # Reduces boot times through caching; required in config/boot.rb

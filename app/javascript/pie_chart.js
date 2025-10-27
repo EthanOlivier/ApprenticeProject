@@ -1,8 +1,8 @@
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-function initializeDoughnutCharts() {
-  document.querySelectorAll('.doughnut-chart').forEach(chartElem => {
+function initializePieCharts() {
+  document.querySelectorAll('.pie-chart').forEach(chartElem => {
     const ctx = chartElem.getContext('2d');
     
     // Destroy existing chart if it exists
@@ -13,30 +13,32 @@ function initializeDoughnutCharts() {
     const plugins = [ChartDataLabels];
     
     const labels = JSON.parse(chartElem.dataset.labels);
-    const newCustomerValues = JSON.parse(chartElem.dataset.newCustomerValues);
-    const returningCustomerValues = JSON.parse(chartElem.dataset.returningCustomerValues);
-
-    const hasData = (returningCustomerValues + newCustomerValues) > 0;
-    if (!hasData) {
-      plugins.push(emptyDoughnutPlugin);
-    }
+    const value1 = Number(chartElem.dataset.value1);
+    const value2 = Number(chartElem.dataset.value2);
+    const value3 = Number(chartElem.dataset.value3);
+    const value4 = Number(chartElem.dataset.value4);
 
     new Chart(ctx, {
-        type: 'doughnut',
+        type: 'pie',
         plugins: plugins,
         data: {
-          labels: labels,
+          labels: labels.reverse(),
           datasets: [
             {
-              data: [returningCustomerValues, newCustomerValues],
+              data: [value4, value3, value2, value1],
               backgroundColor: [
+                'rgba(239, 189, 77, 0.75)',
+                'rgba(152, 218, 209, 0.75)',
                 'rgba(152, 194, 218, 0.75)',
-                'rgba(239, 108, 77, 0.75)'
+                'rgba(239, 108, 77, 0.75)',
               ],
               borderColor: [
+                'rgb(239, 189, 77)',
+                'rgb(152, 218, 209)',
                 'rgb(152, 194, 218)',
-                'rgb(239, 108, 77)'
+                'rgb(239, 108, 77)',
               ],
+              borderAlign: 'inner',
               borderWidth: 3,
               fill: false
             }
@@ -45,8 +47,14 @@ function initializeDoughnutCharts() {
         options: {
           maintainAspectRatio: true,
           responsive: true,
+          onClick: (event, activeElements, chart) => {
+            if (activeElements.length > 0) {
+              const clickedIndex = activeElements[0].index;
+              chart.options.plugins.legend.onClick.call(chart, event, { text: labels[clickedIndex], index: clickedIndex }, chart.legend);
+            }
+          },
           plugins: {
-            datalabels: {     // labels inside the doughnut segments
+            datalabels: {     // labels inside the pie segments
               display: true,
               color: 'black',
               font: {
@@ -58,17 +66,25 @@ function initializeDoughnutCharts() {
               textAlign: 'center',
               formatter: (value, ctx) => {
                 const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                if (total === 0) {
+                if (total === 0 || value === 0) {
                   return ``;
                 }
                 const percentage = (value / total) * 100;
-                return [`${value} `, `(${percentage.toFixed(1)}%)`];
+                if (percentage < 5) {
+                  return '';
+                }
+                else if (percentage < 10) {
+                  return [`${value}`, ''];
+                }
+                else
+                {
+                  return [`${value} `, `(${percentage.toFixed(1)}%)`];
+                }
               }
             },
             legend: {
-              onClick: {},
-              reverse: true,
               position: "bottom",
+              reverse: true,
               labels: {
                 boxWidth: 40,
                 boxHeight: 15,
@@ -81,12 +97,15 @@ function initializeDoughnutCharts() {
                   if (data.labels.length && data.datasets.length) {
                     return data.labels.map(function(label, i) {
                       const backgroundColorRGBA = data.datasets[0].backgroundColor[i].match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*[\d.]+\)/);
-                      
+
+                      console.log(data.datasets[0].data);
+
                       return {
                         text: label,
                         fillStyle: `rgba(${backgroundColorRGBA[1]}, ${backgroundColorRGBA[2]}, ${backgroundColorRGBA[3]}, 0.35)`,
                         strokeStyle: data.datasets[0].borderColor[i],
                         lineWidth: 4,
+                        hidden: !chart.getDataVisibility(i) || data.datasets[0].data[i] === 0,
                         index: i
                       };
                     });
@@ -95,56 +114,24 @@ function initializeDoughnutCharts() {
                 }
               }
             },
-            ...(hasData ? {} : {
-              emptyDoughnut: {
-                color: 'rgb(152, 194, 218)',
-                width: 3,
-                radiusDecrease: 20
+            tooltip: {
+              callbacks: {
+                title: function(context) {
+                  return context.label;
+                },
+                label: function(context) {
+                  const value = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = (value / total) * 100;
+                  return `${value} (${percentage.toFixed(1)}%)`;
+                },
               }
-            })
+            }
           }
         }
     });
   });
 }
 
-const emptyDoughnutPlugin = {
-  id: 'emptyDoughnut',
-  afterDraw(chart, _, options) {
-    const {datasets} = chart.data;
-    const {color, width, radiusDecrease} = options;
-    let hasData = false;
-    
-    for (let i = 0; i < datasets.length; i += 1) {
-      const dataset = datasets[i];
-      const total = dataset.data.reduce((a, b) => a + b, 0);
-      hasData |= total > 0;
-    }
-    
-    if (!hasData) {
-      const {chartArea: {left, top, right, bottom}, ctx} = chart;
-      const centerX = (left + right) / 2;
-      const centerY = (top + bottom) / 2;
-      const r = Math.min(right - left, bottom - top) / 2;
-      
-      // Draw the circle
-      ctx.beginPath();
-      ctx.lineWidth = width || 2;
-      ctx.strokeStyle = color || 'rgba(152, 194, 218, 0.5)';
-      ctx.arc(centerX, centerY, (r - radiusDecrease || 0), 0, 2 * Math.PI);
-      ctx.stroke();
-      
-      // Draw center text
-      ctx.save();
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'black';
-      ctx.font = '600 17px sans-serif';
-      ctx.fillText('0', centerX, centerY - 8);
-      ctx.restore();
-    }
-  }
-};
-
-document.addEventListener('DOMContentLoaded', initializeDoughnutCharts);
-document.addEventListener('turbo:load', initializeDoughnutCharts);
+document.addEventListener('DOMContentLoaded', initializePieCharts);
+document.addEventListener('turbo:load', initializePieCharts);

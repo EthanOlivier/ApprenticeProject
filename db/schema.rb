@@ -10,11 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_20_143226) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_06_211245) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
   enable_extension "uuid-ossp"
+
+  create_table "companies", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "customers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "company_id", null: false
@@ -66,5 +72,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_20_143226) do
     t.date "scheduled_move_out"
     t.boolean "tax_exempt", default: false, null: false
     t.date "auction_date"
+    t.index ["company_id", "void"], name: "index_leases_on_company_id_and_void"
+    t.index ["occupancy_dates"], name: "index_leases_on_occupancy_dates", using: :gist
+    t.index ["storage_unit_id", "void"], name: "index_leases_on_storage_unit_id_and_void"
+  end
+
+  create_table "storage_units", force: :cascade do |t|
+    t.integer "company_id", null: false
+    t.boolean "disabled", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["company_id", "disabled"], name: "index_storage_units_on_company_id_and_disabled"
   end
 end

@@ -67,7 +67,7 @@ class HomeController < ApplicationController
                         prior_month_move_outs == 0 && @report_month_move_outs == 0 ? 0 :
                         ((@report_month_move_outs - prior_month_move_outs).to_f / prior_month_move_outs.abs * 100).round(2)
 
-    @move_ins_and_outs_labels = report_month_move_ins_points.map { |p| p[:date].strftime("%b %d") }
+    @report_month_days_labels = report_month_move_ins_points.map { |p| p[:date].strftime("%b %d") }
     @report_month_move_in_values = report_month_move_ins_points.map { |p| p[:value] }
     @prior_month_move_in_values = prior_month_move_ins_points.map { |p| p[:value] }
 
@@ -101,6 +101,51 @@ class HomeController < ApplicationController
       @previous_months_returning_customers.unshift(returning_customers_count)
 
       @month_labels.unshift(target_month.strftime("%b \u2019%y"))
+    end
+
+
+
+    # Occupancy Rates
+    days = (report_month.beginning_of_month..report_month.end_of_month).to_a
+
+    @occupied = Array.new(days.length, 0)
+    @vacant = Array.new(days.length, 0)
+    @reserved = Array.new(days.length, 0)
+
+    units = StorageUnit.where(company_id: 1).pluck(:id, :disabled)
+
+    disabled_units, non_disabled_units = units.partition { |_, is_disabled| is_disabled }
+
+    @disabled = Array.new(days.length, disabled_units.count)
+
+    non_disabled_units = non_disabled_units.map(&:first).to_set
+
+    # Example: { 1 => [[1, Date('2024-09-01'), Date('2024-10-01')]],
+    #            3 => [[3, Date('2024-08-15'), nil], [3, Date('2024-11-01'), nil]] }
+    leases = Lease.where(storage_unit_id: units.map(&:first), void: false)
+                  .pluck(:storage_unit_id, Arel.sql("lower(occupancy_dates)"), Arel.sql("upper(occupancy_dates)"))
+                  .group_by(&:first)
+
+    days.each_with_index do |day, index|
+      non_disabled_units.each do |unit_id|
+        unit_lease_data = leases[unit_id] || []
+
+        is_occupied = unit_lease_data.any? do |_, start_date, end_date|
+          start_date <= day && (end_date.nil? || end_date > day || end_date == Float::INFINITY)
+        end
+
+        if is_occupied
+          @occupied[index] += 1
+        else
+          is_reserved = unit_lease_data.any? { |_, start_date, _| start_date > day }
+
+          if is_reserved
+            @reserved[index] += 1
+          else
+            @vacant[index] += 1
+          end
+        end
+      end
     end
   end
 end

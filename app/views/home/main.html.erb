@@ -13,12 +13,13 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
+                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
                 data-secondary-values='<%= @prior_month_move_in_values.to_json.html_safe %>'
                 data-percent-difference='<%= @move_ins_percent %>'
+                data-only-fill-main='<%= true %>'
             ></canvas>
         </div>
         
@@ -31,12 +32,13 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @move_ins_and_outs_labels.to_json.html_safe %>'
+                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
                 data-secondary-values='<%= @prior_month_move_out_values.to_json.html_safe %>'
                 data-percent-difference='<%= @move_outs_percent %>'
+                data-only-fill-main='<%= true %>'
             ></canvas>
         </div>
     </div>
@@ -66,6 +68,40 @@
                 data-secondary-legend-label='Returning Customers'
                 data-primary-values='<%= @previous_months_new_customers.to_json.html_safe %>'
                 data-secondary-values='<%= @previous_months_returning_customers.to_json.html_safe %>'
+                data-enhanced-legend='<%= true %>'
+                data-only-fill-main='<%= false %>'
+            ></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="fade-in mt-18">
+    <%= h2("Occupancy Rates", class: "mb-5 flex justify-center relative") %>
+    
+    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[calc(65%-12px)_calc(35%-12px)]">
+        <div class="bg-white flex flex-col rounded-lg shadow-sm border border-1 border-gray-300 p-4 justify-between">
+            <%= h4("#{ @reportMonthName }", class: "mb-1 ml-1") %>
+            <canvas
+                class="bar-and-line-chart max-h-[500px]"
+                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
+                data-bar-labels='<%= ["Occupied"].to_json.html_safe %>'
+                data-line-labels='<%= ["Vacant", "Reserved", "Disabled"].to_json.html_safe %>'
+                data-bar-values='<%= [@occupied].to_json.html_safe %>'
+                data-line-values='<%= [@vacant, @reserved, @disabled].to_json.html_safe %>'
+                data-bar-border-colors='<%= ["rgb(239, 108, 77)"].to_json.html_safe %>'
+                data-bar-background-colors='<%= ["rgb(247, 181, 166)"].to_json.html_safe %>'
+                data-line-colors='<%= ["rgb(152, 194, 218)", "rgb(152, 218, 209)", "rgb(239, 189, 77)"].to_json.html_safe %>'
+            ></canvas>
+        </div>
+        <div class="bg-white flex flex-col rounded-lg shadow-sm border border-1 border-gray-300 p-4 justify-between">
+            <%= h4("End of #{ @reportMonthName }", class: "mb-1 ml-1") %>
+            <canvas
+                class="pie-chart max-h-[500px]"
+                data-labels='["Occupied", "Vacant", "Reserved", "Disabled"]'
+                data-value1='<%= @occupied.last %>'
+                data-value2='<%= @vacant.last %>'
+                data-value3='<%= @reserved.last %>'
+                data-value4='<%= @disabled.last %>'
                 data-enhanced-legend='<%= true %>'
             ></canvas>
         </div>
