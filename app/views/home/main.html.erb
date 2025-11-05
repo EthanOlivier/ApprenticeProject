@@ -13,7 +13,7 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
@@ -32,7 +32,7 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
@@ -83,7 +83,7 @@
             <%= h4("#{ @reportMonthName }", class: "mb-1 ml-1") %>
             <canvas
                 class="bar-and-line-chart max-h-[500px]"
-                data-labels='<%= @report_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
                 data-bar-labels='<%= ["Occupied"].to_json.html_safe %>'
                 data-line-labels='<%= ["Vacant", "Reserved", "Disabled"].to_json.html_safe %>'
                 data-bar-values='<%= [@occupied].to_json.html_safe %>'

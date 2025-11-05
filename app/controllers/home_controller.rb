@@ -7,58 +7,44 @@ class HomeController < ApplicationController
     prior_month = report_month.prev_month
 
     # Move Ins and Move Outs
-    @report_month_move_ins = Lease.where("lower(occupancy_dates) >= ? AND lower(occupancy_dates) <= ?",
-                      report_month.beginning_of_month,
-                      report_month.end_of_month).count
-    prior_month_move_in_leases = Lease.where("lower(occupancy_dates) >= ? AND lower(occupancy_dates) <= ?",
-                      prior_month.beginning_of_month,
-                      prior_month.end_of_month).to_a
-
-    prior_month_move_ins = prior_month_move_in_leases.count
-
-    @report_month_move_outs = Lease.where("upper(occupancy_dates) >= ? AND upper(occupancy_dates) <= ?",
-                                report_month.beginning_of_month,
-                                report_month.end_of_month).count
-    prior_month_move_outs = Lease.where("upper(occupancy_dates) >= ? AND upper(occupancy_dates) <= ?",
-                                prior_month.beginning_of_month,
-                                prior_month.end_of_month).count
-
-
-
-    report_month_move_ins_total_to_date = 0
-    report_month_move_ins_points = (1..report_month.end_of_month.day).map do |day|
-      {
-        date: report_month.change(day: day),
-        value: report_month_move_ins_total_to_date += Lease.where("lower(occupancy_dates) = ?", report_month.change(day: day)).count
-      }
-    end
-    prior_month_move_ins_total_to_date = 0
-    prior_month_move_ins_points = (1..prior_month.end_of_month.day).map do |day|
-      {
-        date: prior_month.change(day: day),
-        value: prior_month_move_ins_total_to_date += Lease.where("lower(occupancy_dates) = ?", prior_month.change(day: day)).count
-      }
+    move_ins_and_outs_query_builder = -> (start_date:, end_date:) do
+      ActiveRecord::Base.sanitize_sql_array([<<~SQL, { start_date:, end_date: }])
+        with t as (
+            select day::date,
+            count(distinct move_in_leases.id) as move_in_count,
+            count(distinct move_out_leases.id) as move_out_count
+            from generate_series(:start_date::date, :end_date::date, interval '1 day') as day
+            left join leases as move_in_leases on lower(move_in_leases.occupancy_dates) = day::date
+            left join leases as move_out_leases on upper(move_out_leases.occupancy_dates) = day::date
+            group by day
+            order by day
+        )
+        select *,
+            (sum(move_in_count) over (order by day rows between unbounded preceding and current row))::bigint as move_ins_total,
+            (sum(move_out_count) over (order by day rows between unbounded preceding and current row))::bigint as move_outs_total
+        from t
+        ;
+      SQL
     end
 
-    report_month_move_outs_total_to_date = 0
-    report_month_move_outs_points = (1..report_month.end_of_month.day).map do |day|
-      {
-        date: report_month.change(day: day),
-        value: report_month_move_outs_total_to_date += Lease.where("upper(occupancy_dates) = ?", report_month.change(day: day)).count
-      }
-    end
-    prior_month_move_outs_total_to_date = 0
-    prior_month_move_outs_points = (1..prior_month.end_of_month.day).map do |day|
-      {
-        date: prior_month.change(day: day),
-        value: prior_month_move_outs_total_to_date += Lease.where("upper(occupancy_dates) = ?", prior_month.change(day: day)).count
-      }
-    end
+    report_month_query = move_ins_and_outs_query_builder.call(start_date: report_month.beginning_of_month.to_s, end_date: report_month.end_of_month.to_s)
+    report_month_results = ActiveRecord::Base.connection.execute(report_month_query).to_a
+
+    prior_month_query = move_ins_and_outs_query_builder.call(start_date: prior_month.beginning_of_month.to_s, end_date: prior_month.end_of_month.to_s)
+    prior_month_results = ActiveRecord::Base.connection.execute(prior_month_query).to_a
 
 
+    longer_month_results = [prior_month_results, report_month_results].sort {|a, b| a.count <=> b.count }.last
+    @longer_month_days_labels = longer_month_results.map { _1["day"].strftime("%b %d") }
 
     @reportMonthName = report_month.strftime("%B")
     @priorMonthName = prior_month.strftime("%B")
+
+
+    @report_month_move_ins = report_month_results.last["move_ins_total"]
+    prior_month_move_ins = prior_month_results.last["move_ins_total"]
+    @report_month_move_outs = report_month_results.last["move_outs_total"]
+    prior_month_move_outs = prior_month_results.last["move_outs_total"]
 
     @move_ins_percent = prior_month_move_ins == 0 && @report_month_move_ins > 0 ? 100 :
                         prior_month_move_ins == 0 && @report_month_move_ins == 0 ? 0 :
@@ -67,13 +53,10 @@ class HomeController < ApplicationController
                         prior_month_move_outs == 0 && @report_month_move_outs == 0 ? 0 :
                         ((@report_month_move_outs - prior_month_move_outs).to_f / prior_month_move_outs.abs * 100).round(2)
 
-    @report_month_days_labels = report_month_move_ins_points.map { |p| p[:date].strftime("%b %d") }
-    @report_month_move_in_values = report_month_move_ins_points.map { |p| p[:value] }
-    @prior_month_move_in_values = prior_month_move_ins_points.map { |p| p[:value] }
-
-    @report_month_move_out_values = report_month_move_outs_points.map { |p| p[:value] }
-    @prior_month_move_out_values = prior_month_move_outs_points.map { |p| p[:value] }
-
+    @report_month_move_in_values = report_month_results.map { _1["move_ins_total"] }
+    @prior_month_move_in_values = prior_month_results.map { _1["move_ins_total"] }
+    @report_month_move_out_values = report_month_results.map { _1["move_outs_total"] }
+    @prior_month_move_out_values = prior_month_results.map { _1["move_outs_total"] }
 
 
 
