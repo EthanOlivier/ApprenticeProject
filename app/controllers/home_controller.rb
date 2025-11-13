@@ -33,9 +33,7 @@ class HomeController < ApplicationController
     prior_month_query = move_ins_and_outs_query_builder.call(start_date: prior_month.beginning_of_month.to_s, end_date: prior_month.end_of_month.to_s)
     prior_month_results = ActiveRecord::Base.connection.execute(prior_month_query).to_a
 
-
-    longer_month_results = [prior_month_results, report_month_results].sort {|a, b| a.count <=> b.count }.last
-    @longer_month_days_labels = longer_month_results.map { _1["day"].strftime("%b %d") }
+    @report_month_day_labels = report_month_results.map { _1["day"].strftime("%b %d") }
 
     @reportMonthName = report_month.strftime("%B")
     @priorMonthName = prior_month.strftime("%B")
@@ -61,30 +59,46 @@ class HomeController < ApplicationController
 
 
     # New Customers and Returning Customers
-    @previous_months_new_customers, @previous_months_returning_customers, @month_labels = [], [], []
+    new_and_returning_customers_query = ActiveRecord::Base.sanitize_sql_array([<<~SQL, { start_date: report_month.prev_month(11).beginning_of_month.to_s, end_date: report_month.end_of_month.to_s }])
+      with
+        month_series as (
+          select 
+            month::date as first_day,
+            (month + interval '1 month' - interval '1 day')::date as last_day
+          from generate_series('2024-11-01'::date, '2025-10-31'::date, interval '1 month') as month
+        ),
+        month_leases as (
+          select 
+            lower(occupancy_dates) as move_in_date,
+            customer_id
+          from leases
+          where lower(occupancy_dates) >= '2024-11-01'::date and lower(occupancy_dates) <= '2025-10-31'::date
+        ),
+        customers_first_lease as (
+          select 
+            ml.customer_id,
+            min(lower(l.occupancy_dates)) as move_in_date
+          from month_leases as ml
+          left join leases as l on ml.customer_id = l.customer_id
+          group by ml.customer_id
+        )
+      select 
+        ms.first_day as month,
+        sum(case when cfl.move_in_date = ml.move_in_date then 1 else 0 end) as new_customer_move_in_count,
+        sum(case when cfl.move_in_date != ml.move_in_date then 1 else 0 end) as returning_customer_move_in_count
+      from month_series as ms
+      left join month_leases as ml on ml.move_in_date >= ms.first_day and ml.move_in_date <= ms.last_day
+      left join customers_first_lease as cfl on ml.customer_id = cfl.customer_id
+      group by ms.first_day
+      order by ms.first_day
+      ;
+    SQL
 
-    (0..11).each do |months_back|
-      target_month = report_month.months_ago(months_back)
-      target_month_move_in_leases = Lease.where("lower(occupancy_dates) >= ? AND lower(occupancy_dates) <= ?",
-                        target_month.beginning_of_month,
-                        target_month.end_of_month).to_a
+    new_and_returning_customers_report_results = ActiveRecord::Base.connection.execute(new_and_returning_customers_query).to_a
 
-      new_customers_count = 0
-      returning_customers_count = 0
-
-      target_month_move_in_leases.each do |lease|
-        if target_month.all_month.cover?(lease.customer.leases.minimum(Arel.sql("lower(occupancy_dates)")))
-          new_customers_count += 1
-        else
-          returning_customers_count += 1
-        end
-      end
-
-      @previous_months_new_customers.unshift(new_customers_count)
-      @previous_months_returning_customers.unshift(returning_customers_count)
-
-      @month_labels.unshift(target_month.strftime("%b \u2019%y"))
-    end
+    @month_labels = new_and_returning_customers_report_results.map { _1["month"].strftime("%b \u2019%y") }
+    @new_customers = new_and_returning_customers_report_results.map { _1["new_customer_move_in_count"] }
+    @returning_customers = new_and_returning_customers_report_results.map { _1["returning_customer_move_in_count"] }
 
 
 

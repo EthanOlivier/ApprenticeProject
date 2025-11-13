@@ -13,7 +13,7 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @report_month_day_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_in_values.to_json.html_safe %>'
@@ -32,7 +32,7 @@
             </p>
             <canvas
                 class="line-chart"
-                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @report_month_day_labels.to_json.html_safe %>'
                 data-primary-legend-label='<%= @reportMonthName %>'
                 data-secondary-legend-label='<%= @priorMonthName %>'
                 data-primary-values='<%= @report_month_move_out_values.to_json.html_safe %>'
@@ -53,8 +53,8 @@
             <canvas 
                 class="doughnut-chart max-h-[500px]"
                 data-labels='["Returning Customers", "New Customers"]'
-                data-new-customer-values='<%= @previous_months_new_customers.last %>'
-                data-returning-customer-values='<%= @previous_months_returning_customers.last %>'
+                data-new-customer-values='<%= @new_customers.last %>'
+                data-returning-customer-values='<%= @returning_customers.last %>'
                 data-enhanced-legend='<%= true %>'
             ></canvas>
         </div>
@@ -66,8 +66,8 @@
                 data-labels='<%= @month_labels.to_json.html_safe %>'
                 data-primary-legend-label='New Customers'
                 data-secondary-legend-label='Returning Customers'
-                data-primary-values='<%= @previous_months_new_customers.to_json.html_safe %>'
-                data-secondary-values='<%= @previous_months_returning_customers.to_json.html_safe %>'
+                data-primary-values='<%= @new_customers.to_json.html_safe %>'
+                data-secondary-values='<%= @returning_customers.to_json.html_safe %>'
                 data-enhanced-legend='<%= true %>'
                 data-only-fill-main='<%= false %>'
             ></canvas>
@@ -83,14 +83,14 @@
             <%= h4("#{ @reportMonthName }", class: "mb-1 ml-1") %>
             <canvas
                 class="bar-and-line-chart max-h-[500px]"
-                data-labels='<%= @longer_month_days_labels.to_json.html_safe %>'
+                data-labels='<%= @report_month_day_labels.to_json.html_safe %>'
                 data-bar-labels='<%= ["Occupied"].to_json.html_safe %>'
-                data-line-labels='<%= ["Vacant", "Reserved", "Disabled"].to_json.html_safe %>'
+                data-line-labels='<%= ["Vacant", "Reserved"].to_json.html_safe %>'
                 data-bar-values='<%= [@occupied].to_json.html_safe %>'
-                data-line-values='<%= [@vacant, @reserved, @disabled].to_json.html_safe %>'
+                data-line-values='<%= [@vacant, @reserved].to_json.html_safe %>'
                 data-bar-border-colors='<%= ["rgb(239, 108, 77)"].to_json.html_safe %>'
                 data-bar-background-colors='<%= ["rgb(247, 181, 166)"].to_json.html_safe %>'
-                data-line-colors='<%= ["rgb(152, 194, 218)", "rgb(152, 218, 209)", "rgb(239, 189, 77)"].to_json.html_safe %>'
+                data-line-colors='<%= ["rgb(152, 194, 218)", "rgb(152, 218, 209)"].to_json.html_safe %>'
             ></canvas>
         </div>
         <div class="bg-white flex flex-col rounded-lg shadow-sm border border-1 border-gray-300 p-4 justify-between">
