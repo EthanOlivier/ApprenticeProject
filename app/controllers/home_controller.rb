@@ -103,46 +103,87 @@ class HomeController < ApplicationController
 
 
     # Occupancy Rates
-    days = (report_month.beginning_of_month..report_month.end_of_month).to_a
+    occupancy_report_query = ActiveRecord::Base.sanitize_sql_array([<<~SQL, { start_date: report_month.beginning_of_month.to_s, end_date: report_month.end_of_month.to_s }])
+      with
+        days_series as (
+          select day::date
+          from generate_series('2025-10-01'::date, '2025-10-31'::date, interval '1 day') as day
+        ),
+        non_disabled_units as (
+          select su.id
+          from storage_units as su
+          where not su.disabled
+        ),
+        non_void_leases as (
+          select l.*
+          from leases as l
+          where not l.void
+        )
+      select
+        ds.day as date,
+        count(distinct ndu.id) filter (where occupied_leases.id is not null) as occupied_count,
+        count(distinct ndu.id) filter (where reserved_leases.id is not null) as reserved_count,
+        count(distinct ndu.id) filter (where occupied_leases.id is null and reserved_leases.id is null) as vacant_count
+      from days_series as ds
+      cross join non_disabled_units as ndu
+      left join non_void_leases as occupied_leases on ndu.id = occupied_leases.storage_unit_id
+        and occupied_leases.occupancy_dates @> ds.day
+      left join non_void_leases as reserved_leases on ndu.id = reserved_leases.storage_unit_id
+        and lower(reserved_leases.occupancy_dates) > ds.day
+      group by ds.day
+      order by ds.day
+      ;
+    SQL
 
-    @occupied = Array.new(days.length, 0)
-    @vacant = Array.new(days.length, 0)
-    @reserved = Array.new(days.length, 0)
+    occupancy_report_results = ActiveRecord::Base.connection.execute(occupancy_report_query).to_a
 
-    units = StorageUnit.where(company_id: 1).pluck(:id, :disabled)
+    @occupied = occupancy_report_results.map { _1["occupied_count"] }
+    @reserved = occupancy_report_results.map { _1["reserved_count"] }
+    @vacant = occupancy_report_results.map { _1["vacant_count"] }
 
-    disabled_units, non_disabled_units = units.partition { |_, is_disabled| is_disabled }
+    @disabled_count = StorageUnit.where(company_id: 1, disabled: true).count
 
-    @disabled = Array.new(days.length, disabled_units.count)
+    # days = (report_month.beginning_of_month..report_month.end_of_month).to_a
 
-    non_disabled_units = non_disabled_units.map(&:first).to_set
+    # @occupied = Array.new(days.length, 0)
+    # @vacant = Array.new(days.length, 0)
+    # @reserved = Array.new(days.length, 0)
 
-    # Example: { 1 => [[1, Date('2024-09-01'), Date('2024-10-01')]],
-    #            3 => [[3, Date('2024-08-15'), nil], [3, Date('2024-11-01'), nil]] }
-    leases = Lease.where(storage_unit_id: units.map(&:first), void: false)
-                  .pluck(:storage_unit_id, Arel.sql("lower(occupancy_dates)"), Arel.sql("upper(occupancy_dates)"))
-                  .group_by(&:first)
+    # units = StorageUnit.where(company_id: 1).pluck(:id, :disabled)
 
-    days.each_with_index do |day, index|
-      non_disabled_units.each do |unit_id|
-        unit_lease_data = leases[unit_id] || []
+    # disabled_units, non_disabled_units = units.partition { |_, is_disabled| is_disabled }
 
-        is_occupied = unit_lease_data.any? do |_, start_date, end_date|
-          start_date <= day && (end_date.nil? || end_date > day || end_date == Float::INFINITY)
-        end
+    # @disabled = Array.new(days.length, disabled_units.count)
 
-        if is_occupied
-          @occupied[index] += 1
-        else
-          is_reserved = unit_lease_data.any? { |_, start_date, _| start_date > day }
+    # non_disabled_units = non_disabled_units.map(&:first).to_set
 
-          if is_reserved
-            @reserved[index] += 1
-          else
-            @vacant[index] += 1
-          end
-        end
-      end
-    end
+    # # Example: { 1 => [[1, Date('2024-09-01'), Date('2024-10-01')]],
+    # #            3 => [[3, Date('2024-08-15'), nil], [3, Date('2024-11-01'), nil]] }
+    # leases = Lease.where(storage_unit_id: units.map(&:first), void: false)
+    #               .pluck(:storage_unit_id, Arel.sql("lower(occupancy_dates)"), Arel.sql("upper(occupancy_dates)"))
+    #               .group_by(&:first)
+
+    # days.each_with_index do |day, index|
+    #   non_disabled_units.each do |unit_id|
+    #     unit_lease_data = leases[unit_id] || []
+
+    #     is_occupied = unit_lease_data.any? do |_, start_date, end_date|
+    #       start_date <= day && (end_date.nil? || end_date > day || end_date == Float::INFINITY)
+    #     end
+
+    #     if is_occupied
+    #       @occupied[index] += 1
+    #     end
+
+    #     is_reserved = unit_lease_data.any? { |_, start_date, _| start_date > day }
+
+    #     if is_reserved
+    #       @reserved[index] += 1
+    #     end
+    #     if !is_occupied && !is_reserved
+    #       @vacant[index] += 1
+    #     end
+    #   end
+    # end
   end
 end
